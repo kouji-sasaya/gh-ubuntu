@@ -33,6 +33,7 @@ cmd_shell() {
 	require_compose_file
 	export LOCAL_UID="$(id -u)"
 	export LOCAL_GID="$(id -g)"
+	export PWD="$(pwd)"
 	docker compose -f "$COMPOSE_FILE" run -q --rm "$SERVICE_NAME" "$@"
 }
 

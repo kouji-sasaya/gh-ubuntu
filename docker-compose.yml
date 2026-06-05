@@ -5,5 +5,5 @@ services:
       - LOCAL_UID=${LOCAL_UID:-1000}
       - LOCAL_GID=${LOCAL_GID:-1000}
     volumes:
-      - .:/workdir
+      - ${PWD:-.}:/workdir
     working_dir: /workdir
