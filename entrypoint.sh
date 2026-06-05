@@ -19,19 +19,22 @@ if ! id -u "$TARGET_USER" >/dev/null 2>&1; then
     useradd -m -g "$TARGET_USER" "$TARGET_USER"
 fi
 
-CURRENT_UID="$(id -u "$TARGET_USER")"
-CURRENT_GID="$(id -g "$TARGET_USER")"
 TARGET_GROUP="$(id -gn "$TARGET_USER")"
 
-if [ "$HOST_GID" != "$CURRENT_GID" ]; then
-    if getent group "$HOST_GID" >/dev/null 2>&1; then
-        usermod -g "$HOST_GID" "$TARGET_USER"
-    else
-        groupmod -g "$HOST_GID" "$TARGET_GROUP"
-    fi
+# 目標 GID が存在しなければ、対象グループを目標 GID へ変更する
+if ! getent group "$HOST_GID" >/dev/null 2>&1; then
+    groupmod -g "$HOST_GID" "$TARGET_GROUP"
 fi
 
-if [ "$HOST_UID" != "$CURRENT_UID" ]; then
+# 最後に user の uid/gid を合わせる
+CURRENT_UID="$(id -u "$TARGET_USER")"
+CURRENT_GID="$(id -g "$TARGET_USER")"
+
+if [ "$CURRENT_GID" != "$HOST_GID" ]; then
+    usermod -g "$HOST_GID" "$TARGET_USER"
+fi
+
+if [ "$CURRENT_UID" != "$HOST_UID" ]; then
     usermod -o -u "$HOST_UID" "$TARGET_USER"
 fi
 
