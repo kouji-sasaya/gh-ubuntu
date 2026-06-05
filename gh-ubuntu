@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+COMPOSE_FILE="$SCRIPT_DIR/docker-compose.yml"
+SERVICE_NAME="dev_env"
+
+usage() {
+	cat <<'EOF'
+Usage: gh-ubuntu <command>
+
+Commands:
+  setup   Build docker compose image
+	shell   Open shell, or run command in container (e.g. gh-ubuntu shell ./hello.sh)
+EOF
+}
+
+require_compose_file() {
+	if [[ ! -f "$COMPOSE_FILE" ]]; then
+		echo "Error: docker-compose.yml not found: $COMPOSE_FILE" >&2
+		exit 1
+	fi
+}
+
+cmd_setup() {
+	require_compose_file
+	cd "$SCRIPT_DIR"
+	export LOCAL_UID="$(id -u)"
+	export LOCAL_GID="$(id -g)"
+	docker compose build
+}
+
+cmd_shell() {
+	require_compose_file
+	cd "$SCRIPT_DIR"
+	export LOCAL_UID="$(id -u)"
+	export LOCAL_GID="$(id -g)"
+	docker compose run -q --rm "$SERVICE_NAME" "$@"
+}
+
+main() {
+	local cmd="${1:-}"
+	case "$cmd" in
+		setup)
+			cmd_setup
+			;;
+		shell)
+			shift
+			cmd_shell "$@"
+			;;
+		-h|--help|help|"")
+			usage
+			;;
+		*)
+			echo "Error: unknown command: $cmd" >&2
+			usage
+			exit 1
+			;;
+	esac
+}
+
+main "$@"
