@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-COMPOSE_FILE="$SCRIPT_DIR/docker-compose.yml"
+TOP="$(cd "$(dirname "$0")" && pwd)"
+COMPOSE_FILE="$TOP/docker-compose.yml"
 SERVICE_NAME="dev_env"
 
 usage() {
@@ -11,7 +11,7 @@ Usage: gh-ubuntu <command>
 
 Commands:
   setup   Build docker compose image
-	shell   Open shell, or run command in container (e.g. gh-ubuntu shell ./hello.sh)
+  shell   Open shell, or run command in container (e.g. gh-ubuntu shell ./hello.sh)
 EOF
 }
 
@@ -24,18 +24,16 @@ require_compose_file() {
 
 cmd_setup() {
 	require_compose_file
-	cd "$SCRIPT_DIR"
 	export LOCAL_UID="$(id -u)"
 	export LOCAL_GID="$(id -g)"
-	docker compose build
+	docker compose -f "$COMPOSE_FILE" build
 }
 
 cmd_shell() {
 	require_compose_file
-	cd "$SCRIPT_DIR"
 	export LOCAL_UID="$(id -u)"
 	export LOCAL_GID="$(id -g)"
-	docker compose run -q --rm "$SERVICE_NAME" "$@"
+	docker compose -f "$COMPOSE_FILE" run -q --rm "$SERVICE_NAME" "$@"
 }
 
 main() {
