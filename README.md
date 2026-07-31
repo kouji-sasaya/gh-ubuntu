@@ -79,6 +79,7 @@ gh ubuntu shell id
 - `gh ubuntu shell` 実行時のホスト側カレントディレクトリは `/workdir` としてコンテナにマウントされます。
 - そのため、どのディレクトリから実行しても、コンテナ内の作業ディレクトリは `/workdir` になります。
 - コンテナの bash には `oh-my-posh` を導入し、テーマ `blueish.omp.json` を適用します。
+- `gh ubuntu setup` で選んだ Ubuntu バージョンを、シェルプロンプトに表示します。
 
 ## トラブルシューティング
 

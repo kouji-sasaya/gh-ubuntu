@@ -5,6 +5,7 @@ TOP="$(cd "$(dirname "$0")" && pwd)"
 COMPOSE_FILE="$TOP/docker-compose.yml"
 SERVICE_NAME="dev_env"
 DEFAULT_UBUNTU_VERSION="24.04"
+VERSION_STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/gh-ubuntu/version"
 
 usage() {
 	cat <<'EOF'
@@ -38,6 +39,15 @@ require_compose_file() {
 	fi
 }
 
+read_ubuntu_version() {
+	if [[ -f "$VERSION_STATE_FILE" ]]; then
+		tr -d '[:space:]' < "$VERSION_STATE_FILE"
+		return
+	fi
+
+	echo "$DEFAULT_UBUNTU_VERSION"
+}
+
 cmd_setup() {
 	require_compose_file
 	local ubuntu_version="${1:-$DEFAULT_UBUNTU_VERSION}"
@@ -57,14 +67,19 @@ cmd_setup() {
 	export LOCAL_UID="$(id -u)"
 	export LOCAL_GID="$(id -g)"
 	export UBUNTU_VERSION="$ubuntu_version"
+	mkdir -p "$(dirname "$VERSION_STATE_FILE")"
+	printf '%s\n' "$ubuntu_version" > "$VERSION_STATE_FILE"
 	docker compose -f "$COMPOSE_FILE" build
 }
 
 cmd_shell() {
 	require_compose_file
+	local ubuntu_version
+	ubuntu_version="$(read_ubuntu_version)"
 	export LOCAL_UID="$(id -u)"
 	export LOCAL_GID="$(id -g)"
 	export PWD="$(pwd)"
+	export UBUNTU_VERSION="$ubuntu_version"
 	docker compose -f "$COMPOSE_FILE" run -q --rm "$SERVICE_NAME" "$@"
 }
 
