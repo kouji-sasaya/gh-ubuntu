@@ -1,4 +1,5 @@
-FROM ubuntu:latest
+ARG UBUNTU_VERSION=24.04
+FROM ubuntu:${UBUNTU_VERSION}
 
 # ubuntu ユーザーにsudo権限を付与
 RUN mkdir -p /etc/sudoers.d \

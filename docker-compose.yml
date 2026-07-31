@@ -1,6 +1,9 @@
 services:
   dev_env:
-    build: .
+    build:
+      context: .
+      args:
+        UBUNTU_VERSION: ${UBUNTU_VERSION:-24.04}
     environment:
       - LOCAL_UID=${LOCAL_UID:-1000}
       - LOCAL_GID=${LOCAL_GID:-1000}

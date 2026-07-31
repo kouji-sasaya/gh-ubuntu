@@ -2,7 +2,7 @@
 
 gh extension として利用できる、Docker ベースの開発環境コマンドです。
 
-- `gh ubuntu setup`: Docker イメージをビルド
+- `gh ubuntu setup [20.04|22.04|24.04|26.04]`: Docker イメージをビルド
 - `gh ubuntu shell`: コンテナ内シェルを起動
 - `gh ubuntu shell <command...>`: コンテナ内で任意コマンドを実行
 
@@ -48,6 +48,17 @@ gh extension list
 ```bash
 gh ubuntu setup
 ```
+
+Ubuntu バージョンを指定してビルド:
+
+```bash
+gh ubuntu setup 20.04
+gh ubuntu setup 22.04
+gh ubuntu setup 24.04
+gh ubuntu setup 26.04
+```
+
+引数未指定時は `24.04` を使用します。
 
 ### コンテナ内シェルへ入る
 

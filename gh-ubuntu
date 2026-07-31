@@ -4,15 +4,31 @@ set -euo pipefail
 TOP="$(cd "$(dirname "$0")" && pwd)"
 COMPOSE_FILE="$TOP/docker-compose.yml"
 SERVICE_NAME="dev_env"
+DEFAULT_UBUNTU_VERSION="24.04"
 
 usage() {
 	cat <<'EOF'
 Usage: gh-ubuntu <command>
 
 Commands:
-  setup   Build docker compose image
+  setup   Build docker compose image (20.04 | 22.04 | 24.04 | 26.04)
   shell   Open shell, or run command in container (e.g. gh-ubuntu shell ./hello.sh)
+
+Examples:
+  gh ubuntu setup
+  gh ubuntu setup 22.04
 EOF
+}
+
+is_supported_ubuntu_version() {
+	case "$1" in
+		20.04|22.04|24.04|26.04)
+			return 0
+			;;
+		*)
+			return 1
+			;;
+	esac
 }
 
 require_compose_file() {
@@ -24,8 +40,23 @@ require_compose_file() {
 
 cmd_setup() {
 	require_compose_file
+	local ubuntu_version="${1:-$DEFAULT_UBUNTU_VERSION}"
+
+	if [[ "$#" -gt 1 ]]; then
+		echo "Error: too many arguments for setup" >&2
+		echo "Usage: gh ubuntu setup [20.04|22.04|24.04|26.04]" >&2
+		exit 1
+	fi
+
+	if ! is_supported_ubuntu_version "$ubuntu_version"; then
+		echo "Error: unsupported Ubuntu version: $ubuntu_version" >&2
+		echo "Supported versions: 20.04, 22.04, 24.04, 26.04" >&2
+		exit 1
+	fi
+
 	export LOCAL_UID="$(id -u)"
 	export LOCAL_GID="$(id -g)"
+	export UBUNTU_VERSION="$ubuntu_version"
 	docker compose -f "$COMPOSE_FILE" build
 }
 
@@ -41,7 +72,8 @@ main() {
 	local cmd="${1:-}"
 	case "$cmd" in
 		setup)
-			cmd_setup
+			shift
+			cmd_setup "$@"
 			;;
 		shell)
 			shift
