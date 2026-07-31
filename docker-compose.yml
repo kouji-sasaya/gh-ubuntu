@@ -1,5 +1,6 @@
 services:
   dev_env:
+    image: gh-ubuntu:latest
     build:
       context: .
       args:
